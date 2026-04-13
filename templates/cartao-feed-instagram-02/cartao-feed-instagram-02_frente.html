@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Cartão Feed Instagram - Frente 02</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 636px;
+      height: 1116px;
+      overflow: hidden;
+      background: transparent;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      display: flex;
+    }
+
+    .frame {
+      position: relative;
+      width: 636px;
+      height: 1116px;
+      border-radius: 30px;
+      overflow: hidden;
+      background: #f2f2f2;
+    }
+
+    .trim-area {
+      position: absolute;
+      left: 18px;
+      top: 18px;
+      width: 600px;
+      height: 1080px;
+      overflow: visible;
+      color: #1d1d1d;
+    }
+
+    .top-bg {
+      position: absolute;
+      top: -18px;
+      left: -18px;
+      width: 636px;
+      height: 216px;
+      z-index: 1;
+    }
+
+    .divider {
+      position: absolute;
+      top: 88px;
+      left: 16px;
+      width: 568px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.95);
+      z-index: 4;
+    }
+
+    .topbar {
+      position: absolute;
+      top: 33px;
+      left: 20px;
+      width: 560px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 6;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-weight: 700;
+      font-size: 20px;
+      color: #111;
+    }
+
+    .back-arrow {
+      font-size: 42px;
+      line-height: 1;
+      font-weight: 400;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .top-icon {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      display: block;
+      filter: brightness(0) saturate(100%);
+    }
+
+    .top-icon-options {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      display: block;
+      filter: brightness(0) saturate(100%);
+      transform: rotate(-90deg);
+    }
+
+    .profile-ring {
+      position: absolute;
+      top: 112px;
+      left: 31px;
+      width: 126px;
+      height: 126px;
+      border-radius: 50%;
+      background: conic-gradient(#ff0000, #ff7a00, #ff00a8, #8822ff, #ff0000);
+      padding: 6px;
+      z-index: 8;
+    }
+
+    .profile-inner {
+      width: 114px;
+      height: 114px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #d8d8d8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .profile-inner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .profile-placeholder {
+      color: #9a9a9a;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .stats {
+      position: absolute;
+      top: 154px;
+      left: 251px;
+      width: 300px;
+      display: flex;
+      justify-content: space-between;
+      z-index: 8;
+    }
+
+    .stat {
+      width: 72px;
+      text-align: center;
+    }
+
+    .heart-icon {
+      width: 50px;
+      height: 44px;
+      min-width: 50px;
+      min-height: 44px;
+      max-width: 50px;
+      max-height: 44px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 10px auto;
+    }
+
+    .stat-label {
+      font-size: 15px;
+      color: #212121;
+      white-space: nowrap;
+    }
+
+    .identity {
+      position: absolute;
+      top: 255px;
+      left: 39px;
+      z-index: 8;
+    }
+
+    .store-name {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.1;
+      color: #1d1d1d;
+    }
+
+    .username {
+      margin-top: 4px;
+      font-size: 16px;
+      color: #555;
+    }
+
+    .bio {
+      position: absolute;
+      top: 330px;
+      left: 39px;
+      width: 310px;
+      z-index: 8;
+      color: #1d1d1d;
+    }
+
+    .bio-text {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.28;
+      white-space: pre-line;
+    }
+
+    .qr-box {
+      position: absolute;
+      top: 295px;
+      right: 20px;
+      width: 170px;
+      height: 170px;
+      z-index: 9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #qr-code {
+      width: 166px;
+      height: 166px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .buttons {
+      position: absolute;
+      top: 486px;
+      left: 31px;
+      width: 536px;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      z-index: 8;
+    }
+
+    .btn {
+      height: 47px;
+      border-radius: 16px;
+      background: #1f72f8;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #1f72f8;
+    }
+
+    .btn-follow {
+      width: 142px;
+    }
+
+    .btn-message {
+      width: 142px;
+    }
+
+    .btn-store {
+      width: 152px;
+    }
+
+    .btn-extra {
+      width: 58px;
+      height: 47px;
+      border-radius: 16px;
+      background: #1f72f8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #1f72f8;
+    }
+
+    .btn-extra img {
+      width: 26px;
+      height: 26px;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+    }
+
+    .mid-tabs {
+      position: absolute;
+      top: 560px;
+      left: 0;
+      width: 600px;
+      display: flex;
+      justify-content: center;
+      gap: 110px;
+      z-index: 8;
+    }
+
+    .mid-tab-icon {
+      width: 33px;
+      height: 33px;
+      object-fit: contain;
+      opacity: 0.7;
+      filter: grayscale(100%) brightness(0.5);
+    }
+
+    .posts-grid {
+      position: absolute;
+      top: 621px;
+      left: 18px;
+      width: 564px;
+      display: grid;
+      grid-template-columns: repeat(3, 180px);
+      grid-template-rows: repeat(2, 180px);
+      gap: 12px;
+      z-index: 8;
+    }
+
+    .post {
+      width: 180px;
+      height: 180px;
+      background: #dcdcdc;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9a9a9a;
+      font-size: 16px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .post img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .bottom-nav {
+      position: absolute;
+      bottom: 22px;
+      left: 0;
+      width: 600px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .nav-icon {
+      width: 45px;
+      height: 40px;
+      min-width: 45px;
+      min-height: 40px;
+      max-width: 45px;
+      max-height: 40px;
+      object-fit: contain;
+      display: block;
+      filter: brightness(0) saturate(100%);
+    }
+
+    .bottom-profile-ring {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: conic-gradient(#ff0000, #ff7a00, #ff00a8, #8822ff, #ff0000);
+      padding: 2px;
+    }
+
+    .bottom-profile-inner {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #d8d8d8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bottom-profile-inner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .bottom-profile-placeholder {
+      color: #979797;
+      font-size: 8px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="frame">
+    <div class="trim-area">
+      <div class="top-bg"></div>
+
+      <div class="topbar">
+        <div class="topbar-left">
+          <div class="back-arrow">←</div>
+          <div>{{username}}</div>
+        </div>
+
+        <div class="topbar-right">
+          <img class="top-icon" src="{{icon_reels}}" alt="Ícone" />
+          <img class="top-icon-options" src="{{icon_options}}" alt="Opções" />
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="profile-ring">
+        <div class="profile-inner">
+          {{#if profile_image}}
+          <img src="{{profile_image}}" alt="Perfil" />
+          {{else}}
+          <div class="profile-placeholder">Placeholder</div>
+          {{/if}}
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <img class="heart-icon" src="{{heart_icon}}" alt="Coracao" />
+          <div class="stat-label">{{stat_1_label}}</div>
+        </div>
+        <div class="stat">
+          <img class="heart-icon" src="{{heart_icon}}" alt="Coracao" />
+          <div class="stat-label">{{stat_2_label}}</div>
+        </div>
+        <div class="stat">
+          <img class="heart-icon" src="{{heart_icon}}" alt="Coracao" />
+          <div class="stat-label">{{stat_3_label}}</div>
+        </div>
+      </div>
+
+      <div class="identity">
+        <h1 class="store-name">{{store_name}}</h1>
+        <div class="username">{{username}}</div>
+      </div>
+
+      <div class="bio">
+        <p class="bio-text">{{bio_text}}</p>
+      </div>
+
+      <div class="qr-box">
+        <div id="qr-code"></div>
+      </div>
+
+      <div class="buttons">
+        <div class="btn btn-follow">{{button_1}}</div>
+        <div class="btn btn-message">{{button_2}}</div>
+        <div class="btn btn-store">{{button_3}}</div>
+        <div class="btn-extra">
+          <img src="{{icon_profile}}" alt="Perfil" />
+        </div>
+      </div>
+
+      <div class="mid-tabs">
+        <img class="mid-tab-icon" src="{{icon_grid}}" alt="Grid" />
+        <img class="mid-tab-icon" src="{{icon_reels}}" alt="Reels" />
+        <img class="mid-tab-icon" src="{{icon_profile}}" alt="Perfil" />
+      </div>
+
+      <div class="posts-grid">
+        <div class="post">{{#if post_1}}<img src="{{post_1}}" alt="Post 1" />{{else}}Placeholder{{/if}}</div>
+        <div class="post">{{#if post_2}}<img src="{{post_2}}" alt="Post 2" />{{else}}Placeholder{{/if}}</div>
+        <div class="post">{{#if post_3}}<img src="{{post_3}}" alt="Post 3" />{{else}}Placeholder{{/if}}</div>
+        <div class="post">{{#if post_4}}<img src="{{post_4}}" alt="Post 4" />{{else}}Placeholder{{/if}}</div>
+        <div class="post">{{#if post_5}}<img src="{{post_5}}" alt="Post 5" />{{else}}Placeholder{{/if}}</div>
+        <div class="post">{{#if post_6}}<img src="{{post_6}}" alt="Post 6" />{{else}}Placeholder{{/if}}</div>
+      </div>
+
+      <div class="bottom-nav">
+        <img class="nav-icon" src="{{icon_home}}" alt="Home" />
+        <img class="nav-icon" src="{{icon_reels}}" alt="Reels" />
+        <img class="nav-icon" src="{{icon_add}}" alt="Adicionar" />
+        <img class="nav-icon" src="{{icon_search}}" alt="Buscar" />
+
+        <div class="bottom-profile-ring">
+          <div class="bottom-profile-inner">
+            {{#if profile_image}}
+            <img src="{{profile_image}}" alt="Perfil pequeno" />
+            {{else}}
+            <div class="bottom-profile-placeholder">P</div>
+            {{/if}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qr-code-styling/lib/qr-code-styling.js"></script>
+  <script>
+    const qrCode = new QRCodeStyling({
+      width: 166,
+      height: 166,
+      type: "canvas",
+      shape: "square",
+      data: "{{{qr_url}}}",
+      image: "{{{qr_logo}}}",
+      margin: 0,
+      qrOptions: {
+        typeNumber: "0",
+        mode: "Byte",
+        errorCorrectionLevel: "Q"
+      },
+      dotsOptions: {
+        color: "{{qr_dots_color}}",
+        type: "rounded",
+        roundSize: true
+      },
+      cornersSquareOptions: {
+        color: "{{qr_corners_square_color}}",
+        type: "extra-rounded"
+      },
+      cornersDotOptions: {
+        color: "{{qr_corners_dot_color}}",
+        type: "dot"
+      },
+      backgroundOptions: {
+        color: "transparent"
+      },
+      imageOptions: {
+        crossOrigin: "anonymous",
+        margin: -8,
+        imageSize: 0.58,
+        hideBackgroundDots: true
+      }
+    });
+
+    qrCode.append(document.getElementById("qr-code"));
+  </script>
+</body>
+
+</html>

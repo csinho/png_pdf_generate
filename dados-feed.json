@@ -1,5 +1,5 @@
 {
-    "template_id": "cartao-feed-instagram-01",
+    "template_id": "cartao-feed-instagram-02",
     "quantity": 20,
     "auto_generate_pdf": true,
     "config": {
@@ -36,7 +36,7 @@
         "qr_logo": "https://btanmzzvgjhtmurkfksb.supabase.co/storage/v1/object/public/images/logo.png",
         "qr_dots_color": "#ff9900",
         "qr_corners_square_color": "#ff9900",
-        "qr_corners_dot_color": "#ff9900"
+        "qr_corners_dot_color": "#ff9900",
     },
     "back": {
         "shape_1_color": "#ff9900",

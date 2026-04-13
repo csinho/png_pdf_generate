@@ -93,8 +93,12 @@ function buildIcons(iconsDir, content) {
 function getTemplatePaths(templateId) {
   const templateMap = {
     'cartao-feed-instagram-01': {
-      front: path.join('cartao-feed-instagram-01', 'cartao-feed-instagram-01-frente.html'),
-      back: path.join('cartao-feed-instagram-01', 'cartao-feed-instagram-01-verso.html')
+      front: path.join('cartao-feed-instagram-01', 'cartao-feed-instagram-01_frente.html'),
+      back: path.join('cartao-feed-instagram-01', 'cartao-feed-instagram-01_verso.html')
+    },
+    'cartao-feed-instagram-02': {
+      front: path.join('cartao-feed-instagram-02', 'cartao-feed-instagram-02_frente.html'),
+      back: path.join('cartao-feed-instagram-01', 'cartao-feed-instagram-01_verso.html')
     }
   };
 
