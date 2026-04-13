@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Template 03 - Verso 04</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      width: 1748px;
+      height: 839px;
+      overflow: hidden;
+      background: transparent;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      display: flex;
+    }
+
+    .frame {
+      position: relative;
+      width: 1748px;
+      height: 839px;
+      overflow: hidden;
+      border-radius: 36px;
+      background: #f2f2f2;
+    }
+
+    .left-side {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 874px;
+      height: 839px;
+      background: #ffffff;
+      z-index: 1;
+    }
+
+    .right-side {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 874px;
+      height: 839px;
+      background: {{panel_dark}};
+      z-index: 1;
+    }
+
+    .center-line {
+      position: absolute;
+      left: 873px;
+      top: 0;
+      width: 2px;
+      height: 839px;
+      background: rgba(0,0,0,0.08);
+      z-index: 2;
+    }
+
+    .qr-wrap {
+      position: absolute;
+      left: 170px;
+      top: 155px;
+      width: 360px;
+      height: 360px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3;
+    }
+
+    #qr-code {
+      width: 300px;
+      height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .company-name-left {
+      position: absolute;
+      left: 180px;
+      top: 540px;
+      width: 360px;
+      text-align: center;
+      font-size: 58px;
+      font-weight: 900;
+      color: {{accent_color}};
+      text-transform: uppercase;
+      z-index: 3;
+    }
+
+    .company-subtitle-left {
+      position: absolute;
+      left: 180px;
+      top: 620px;
+      width: 360px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: 700;
+      color: #7b7b7b;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      z-index: 3;
+    }
+
+    .right-block {
+      position: absolute;
+      right: 120px;
+      top: 110px;
+      width: 560px;
+      z-index: 3;
+      text-align: right;
+    }
+
+    .name {
+      width: 100%;
+      font-size: 86px;
+      font-weight: 900;
+      color: {{text_light}};
+      text-transform: uppercase;
+      line-height: 0.95;
+      word-break: break-word;
+    }
+
+    .role {
+      margin-top: 24px;
+      width: 100%;
+      font-size: 34px;
+      font-weight: 700;
+      color: #bdbdbd;
+      line-height: 1.2;
+    }
+
+    .contact-list {
+      margin-top: 90px;
+      width: 100%;
+      color: {{text_light}};
+      font-size: 34px;
+      line-height: 1.7;
+      font-weight: 600;
+    }
+
+    .contact-row {
+      margin-bottom: 10px;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="left-side"></div>
+    <div class="right-side"></div>
+    <div class="center-line"></div>
+
+    <div class="qr-wrap">
+      <div id="qr-code"></div>
+    </div>
+
+    <div class="company-name-left">{{company_name}}</div>
+    <div class="company-subtitle-left">{{company_subtitle}}</div>
+
+    <div class="right-block">
+      <div class="name">{{person_name}}</div>
+      <div class="role">{{person_role}}</div>
+
+      <div class="contact-list">
+        <div class="contact-row">{{phone}}</div>
+        <div class="contact-row">{{email}}</div>
+        <div class="contact-row">{{website}}</div>
+        <div class="contact-row">{{address}}</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qr-code-styling/lib/qr-code-styling.js"></script>
+  <script>
+    const qrCode = new QRCodeStyling({
+      width: 300,
+      height: 300,
+      type: "canvas",
+      shape: "square",
+      data: "{{{qr_url}}}",
+      image: "{{{qr_logo}}}",
+      margin: 0,
+      qrOptions: {
+        typeNumber: "0",
+        mode: "Byte",
+        errorCorrectionLevel: "Q"
+      },
+      dotsOptions: {
+        color: "{{qr_dots_color}}",
+        type: "{{qr_dots_type}}"
+      },
+      cornersSquareOptions: {
+        color: "{{qr_corners_square_color}}",
+        type: "{{qr_corners_square_type}}"
+      },
+      cornersDotOptions: {
+        color: "{{qr_corners_dot_color}}",
+        type: "{{qr_corners_dot_type}}"
+      },
+      backgroundOptions: {
+        color: "{{qr_background_color}}"
+      },
+      imageOptions: {
+        crossOrigin: "anonymous",
+        margin: -6,
+        imageSize: 0.34,
+        hideBackgroundDots: true
+      }
+    });
+
+    qrCode.append(document.getElementById("qr-code"));
+  </script>
+</body>
+</html>

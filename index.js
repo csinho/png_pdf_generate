@@ -98,11 +98,16 @@ function buildIcons(iconsDir, content) {
 
     nome_instagram: fs.existsSync(path.join(iconsDir, 'nome_instagram.webp'))
       ? fileToDataUri(path.join(iconsDir, 'nome_instagram.webp'))
-      : ''
+      : '',
+    cedula_20_front: fs.existsSync(path.join(iconsDir, '20_front.jpg'))
+      ? fileToDataUri(path.join(iconsDir, '20_front.jpg'))
+      : '',
   };
 }
 
-function getTemplatePaths(templateId) {
+function getTemplatePaths(templateId, options = {}) {
+  const variant = String(options.backVariant || '01').padStart(2, '0');
+
   const templateMap = {
     'template-0': {
       front: path.join('template-0', 'template-0_frente.html'),
@@ -115,6 +120,10 @@ function getTemplatePaths(templateId) {
     'cartao-feed-instagram-02': {
       front: path.join('cartao-feed-instagram-02', 'cartao-feed-instagram-02_frente.html'),
       back: path.join('cartao-feed-instagram-01', 'cartao-feed-instagram-01_verso.html')
+    },
+    'cartao-feed-instagram-03': {
+      front: path.join('cartao-feed-instagram-03', 'cartao-feed-instagram-03_frente.html'),
+      back: path.join('cartao-feed-instagram-03', `cartao-feed-instagram-03_verso_${variant}.html`)
     }
   };
 
@@ -277,7 +286,10 @@ async function generateRegularTemplate({
   iconsDir,
   outputDir
 }) {
-  const templatePaths = getTemplatePaths(templateId);
+  
+  const templatePaths = getTemplatePaths(templateId, {
+    backVariant: back?.template_variant || '01'
+  });
 
   const jobDir = path.join(outputDir, jobId);
   const backsDir = path.join(jobDir, 'backs');

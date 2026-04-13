@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Cartão Feed Instagram - Verso 03</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 1748px;
+      height: 839px;
+      overflow: hidden;
+      background: transparent;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      display: flex;
+    }
+
+    .frame {
+      position: relative;
+      width: 1748px;
+      height: 839px;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, #f8e6b7 0%, #f1d28c 48%, #e8bf6d 100%);
+    }
+
+    .texture {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.25) 0%, transparent 30%),
+        radial-gradient(circle at 80% 70%, rgba(255,255,255,0.20) 0%, transparent 28%);
+      opacity: 0.9;
+      z-index: 1;
+    }
+
+    .content {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 80px 90px;
+    }
+
+    .left {
+      width: 720px;
+      color: #6b2d00;
+    }
+
+    .eyebrow {
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      color: #8a4d00;
+    }
+
+    .store-name {
+      font-size: 72px;
+      line-height: 1.05;
+      font-weight: 900;
+      margin: 0 0 24px 0;
+      color: #5a2400;
+      text-transform: uppercase;
+    }
+
+    .store-text {
+      font-size: 34px;
+      line-height: 1.35;
+      font-weight: 600;
+      color: #6b3607;
+      margin: 0 0 36px 0;
+    }
+
+    .small-note {
+      font-size: 22px;
+      line-height: 1.4;
+      font-weight: 700;
+      color: rgba(90, 36, 0, 0.78);
+      text-transform: uppercase;
+    }
+
+    .right {
+      width: 560px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .qr-card {
+      width: 520px;
+      height: 520px;
+      background: rgba(255, 255, 255, 0.82);
+      border-radius: 38px;
+      box-shadow:
+        0 18px 40px rgba(0,0,0,0.12),
+        inset 0 0 0 2px rgba(255,255,255,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+    }
+
+    #qr-code {
+      width: 460px;
+      height: 460px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bottom-strip {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 44px;
+      background: rgba(120, 48, 0, 0.16);
+      z-index: 3;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="frame">
+    <div class="texture"></div>
+
+    <div class="content">
+      <div class="left">
+        <div class="eyebrow">Acesse agora</div>
+        <h1 class="store-name">{{store_name}}</h1>
+        <p class="store-text">{{store_text}}</p>
+        <div class="small-note">
+          Escaneie o QR code ao lado para abrir o conteúdo.
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="qr-card">
+          <div id="qr-code"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-strip"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qr-code-styling/lib/qr-code-styling.js"></script>
+  <script>
+    const qrCode = new QRCodeStyling({
+      width: 460,
+      height: 460,
+      type: "canvas",
+      shape: "square",
+      data: "{{{qr_url}}}",
+      image: "{{{qr_logo}}}",
+      margin: 0,
+      qrOptions: {
+        typeNumber: "0",
+        mode: "Byte",
+        errorCorrectionLevel: "Q"
+      },
+      dotsOptions: {
+        color: "{{qr_dots_color}}",
+        type: "{{qr_dots_type}}"
+      },
+      cornersSquareOptions: {
+        color: "{{qr_corners_square_color}}",
+        type: "{{qr_corners_square_type}}"
+      },
+      cornersDotOptions: {
+        color: "{{qr_corners_dot_color}}",
+        type: "{{qr_corners_dot_type}}"
+      },
+      backgroundOptions: {
+        color: "{{qr_background_color}}"
+      },
+      imageOptions: {
+        crossOrigin: "anonymous",
+        margin: -5,
+        imageSize: 0.35,
+        hideBackgroundDots: true
+      }
+    });
+
+    qrCode.append(document.getElementById("qr-code"));
+  </script>
+</body>
+
+</html>

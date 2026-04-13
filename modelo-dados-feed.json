@@ -86,5 +86,56 @@
             "qr_corners_dot_type": "dot",
             "qr_background_color": "transparent"
         }
-    }
+    },
+    {
+        "template_id": "cartao-feed-instagram-03",
+        "quantity": 10,
+        "auto_generate_pdf": true,
+        "config": {
+          "pdf_template_id": "a4-money-style-03",
+          "columns": 1,
+          "rows": 4,
+          "cards_per_page": 4,
+          "trim_width": 1677,
+          "trim_height": 768,
+          "bleed_px": 35,
+          "show_guides": true,
+          "show_crop_marks": true
+        },
+        "front": {
+          "cedula_20_front": "https://SEU-LINK/20_front.jpg",
+          "top_notice": "IMAGEM MERAMENTE ILUSTRATIVA • SEM VALOR MONETÁRIO • USO NÃO COMERCIAL",
+          "warning_band_1": "SEM VALOR • ILUSTRATIVO • NÃO UTILIZAR COMO CÉDULA REAL",
+          "warning_band_2": "PROIBIDA REPRODUÇÃO COM FINALIDADE COMERCIAL OU ENGANOSA",
+          "stamp_text": "SEM VALOR\nILUSTRATIVO",
+          "side_warning": "imagem ilustrativa",
+          "bottom_notice": "ESTA ARTE É EXCLUSIVAMENTE ILUSTRATIVA, SEM FINS MONETÁRIOS, SEM VALOR CAMBIAL E NÃO PODE SER UTILIZADA COMO SUBSTITUIÇÃO DE CÉDULA OFICIAL."
+        },
+        "back": {
+          "template_variant": "01",
+          "logo_image": "https://SEU-LINK/logo.png",
+          "company_name": "Company",
+          "company_subtitle": "Slogan Goes Here",
+          "person_name": "Nay Smart",
+          "person_role": "Graphic Designer",
+          "phone": "+11 9000 1756 9292",
+          "email": "www.youremail.com",
+          "website": "www.yourwebsite.com",
+          "address": "Local Street 90",
+          "accent_color": "#ff7a1a",
+          "accent_color_2": "#ff5a1a",
+          "panel_dark": "#0b1328",
+          "text_light": "#ffffff",
+          "text_dark": "#333333",
+          "qr_base_url": "https://SEU-SITE.com/qr?id=",
+          "qr_logo": "",
+          "qr_dots_color": "#1b2152",
+          "qr_dots_type": "rounded",
+          "qr_corners_square_color": "#1b2152",
+          "qr_corners_square_type": "extra-rounded",
+          "qr_corners_dot_color": "#1b2152",
+          "qr_corners_dot_type": "dot",
+          "qr_background_color": "transparent"
+        }
+      }
 ]

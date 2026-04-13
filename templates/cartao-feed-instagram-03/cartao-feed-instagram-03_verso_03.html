@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Template 03 - Verso 03</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      width: 1748px;
+      height: 839px;
+      overflow: hidden;
+      background: transparent;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      display: flex;
+    }
+
+    .frame {
+      position: relative;
+      width: 1748px;
+      height: 839px;
+      overflow: hidden;
+      background: #f5f5f5;
+      border-radius: 36px;
+    }
+
+    .top-pill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 780px;
+      height: 270px;
+      background: {{accent_color}};
+      border-bottom-right-radius: 170px;
+      z-index: 2;
+      box-shadow: 18px 16px 0 rgba(0,0,0,0.16);
+    }
+
+    .bottom-band {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 135px;
+      background: {{accent_color}};
+      z-index: 1;
+    }
+
+    .bottom-cut {
+      position: absolute;
+      left: 865px;
+      bottom: 92px;
+      width: 220px;
+      height: 95px;
+      background: #f5f5f5;
+      border-top-left-radius: 50px;
+      border-top-right-radius: 50px;
+      z-index: 2;
+    }
+
+    .left-block {
+      position: absolute;
+      left: 110px;
+      top: 86px;
+      width: 620px;
+      z-index: 4;
+    }
+
+    .name {
+      width: 100%;
+      color: #fff;
+      font-size: 82px;
+      font-weight: 900;
+      line-height: 1.05;
+      text-transform: uppercase;
+    }
+
+    .role {
+      margin-top: 18px;
+      color: #fff;
+      font-size: 34px;
+      font-weight: 700;
+    }
+
+    .contact-list {
+      position: absolute;
+      left: 140px;
+      top: 355px;
+      width: 600px;
+      z-index: 4;
+      color: #5d5d5d;
+      font-size: 34px;
+      line-height: 1.8;
+      font-weight: 600;
+    }
+
+    .contact-row {
+      margin-bottom: 8px;
+    }
+
+    .right-block {
+      position: absolute;
+      right: 120px;
+      top: 96px;
+      width: 430px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      z-index: 4;
+    }
+
+    .logo-wrap {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .logo-wrap img {
+      max-width: 120px;
+      max-height: 120px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 12px auto;
+    }
+
+    .company-name {
+      font-size: 52px;
+      font-weight: 900;
+      color: #444;
+      text-transform: uppercase;
+      line-height: 1.05;
+    }
+
+    .company-subtitle {
+      margin-top: 8px;
+      font-size: 24px;
+      font-weight: 700;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .qr-wrap {
+      width: 300px;
+      height: 300px;
+      margin-top: 30px;
+      background: rgba(255,255,255,0.94);
+      border: 3px solid #d9d9d9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #qr-code {
+      width: 250px;
+      height: 250px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="bottom-band"></div>
+    <div class="bottom-cut"></div>
+    <div class="top-pill"></div>
+
+    <div class="left-block">
+      <div class="name">{{person_name}}</div>
+      <div class="role">{{person_role}}</div>
+    </div>
+
+    <div class="contact-list">
+      <div class="contact-row">{{address}}</div>
+      <div class="contact-row">{{phone}}</div>
+      <div class="contact-row">{{email}}</div>
+      <div class="contact-row">{{website}}</div>
+    </div>
+
+    <div class="right-block">
+      <div class="logo-wrap">
+        {{#if logo_image}}
+        <img src="{{logo_image}}" alt="Logo" />
+        {{/if}}
+        <div class="company-name">{{company_name}}</div>
+        <div class="company-subtitle">{{company_subtitle}}</div>
+      </div>
+
+      <div class="qr-wrap">
+        <div id="qr-code"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qr-code-styling/lib/qr-code-styling.js"></script>
+  <script>
+    const qrCode = new QRCodeStyling({
+      width: 250,
+      height: 250,
+      type: "canvas",
+      shape: "square",
+      data: "{{{qr_url}}}",
+      image: "{{{qr_logo}}}",
+      margin: 0,
+      qrOptions: {
+        typeNumber: "0",
+        mode: "Byte",
+        errorCorrectionLevel: "Q"
+      },
+      dotsOptions: {
+        color: "{{qr_dots_color}}",
+        type: "{{qr_dots_type}}"
+      },
+      cornersSquareOptions: {
+        color: "{{qr_corners_square_color}}",
+        type: "{{qr_corners_square_type}}"
+      },
+      cornersDotOptions: {
+        color: "{{qr_corners_dot_color}}",
+        type: "{{qr_corners_dot_type}}"
+      },
+      backgroundOptions: {
+        color: "{{qr_background_color}}"
+      },
+      imageOptions: {
+        crossOrigin: "anonymous",
+        margin: -6,
+        imageSize: 0.34,
+        hideBackgroundDots: true
+      }
+    });
+
+    qrCode.append(document.getElementById("qr-code"));
+  </script>
+</body>
+</html>
