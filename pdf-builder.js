@@ -25,26 +25,45 @@ function chunkArray(array, chunkSize) {
   return chunks;
 }
 
-function getLatestJobDir(outputDir) {
-  ensureFileExists(outputDir, 'diretório output');
+function buildLayoutForTemplateZero(jobResult) {
+  const config = jobResult.config || {};
+  const qrWidth = jobResult.front_meta?.qr_width || config.trim_width || 250;
+  const qrHeight = jobResult.front_meta?.qr_height || config.trim_height || 250;
 
-  const entries = fs.readdirSync(outputDir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => ({
-      name: entry.name,
-      fullPath: path.join(outputDir, entry.name),
-      mtime: fs.statSync(path.join(outputDir, entry.name)).mtimeMs
-    }))
-    .sort((a, b) => b.mtime - a.mtime);
+  const columns = config.columns || 6;
+  const rows = config.rows || 4;
+  const cardsPerPage = config.cards_per_page || (columns * rows);
 
-  if (!entries.length) {
-    throw new Error(`Nenhum job encontrado em: ${outputDir}`);
-  }
+  const gap = config.gap ?? 20;
 
-  return entries[0].fullPath;
+  const totalWidth = (columns * qrWidth) + ((columns - 1) * gap);
+  const totalHeight = (rows * qrHeight) + ((rows - 1) * gap);
+
+  const offsetX = Math.floor((A4_WIDTH - totalWidth) / 2);
+  const offsetY = Math.floor((A4_HEIGHT - totalHeight) / 2);
+
+  return {
+    pageWidth: A4_WIDTH,
+    pageHeight: A4_HEIGHT,
+    columns,
+    rows,
+    cardsPerPage,
+    trimWidth: qrWidth,
+    trimHeight: qrHeight,
+    bleed: 0,
+    gapX: gap,
+    gapY: gap,
+    offsetX,
+    offsetY,
+    showGuides: false,
+    showCropMarks: false,
+    templateZero: true
+  };
 }
 
-function buildLayout(config = {}) {
+function buildLayoutRegular(jobResult) {
+  const config = jobResult.config || {};
+
   const columns = config.columns || 4;
   const rows = config.rows || 3;
   const cardsPerPage = config.cards_per_page || 12;
@@ -65,26 +84,20 @@ function buildLayout(config = {}) {
   return {
     pageWidth: A4_WIDTH,
     pageHeight: A4_HEIGHT,
-
     columns,
     rows,
     cardsPerPage,
-
     trimWidth,
     trimHeight,
     bleed,
     slotWidth,
     slotHeight,
-
     offsetX,
     offsetY,
-
     showGuides: config.show_guides ?? true,
     showCropMarks: config.show_crop_marks ?? true,
-
     guideColor: rgb(0.75, 0.75, 0.75),
     guideThickness: config.guide_thickness || 0.8,
-
     cropMarkColor: rgb(0, 0, 0),
     cropMarkThickness: config.crop_mark_thickness || 1.2,
     cropMarkLength: config.crop_mark_length || 24,
@@ -96,9 +109,16 @@ function getSlotPosition(index, layout) {
   const col = index % layout.columns;
   const row = Math.floor(index / layout.columns);
 
+  if (layout.templateZero) {
+    const x = layout.offsetX + col * (layout.trimWidth + layout.gapX);
+    const yFromTop = layout.offsetY + row * (layout.trimHeight + layout.gapY);
+    const y = layout.pageHeight - yFromTop - layout.trimHeight;
+
+    return { x, y };
+  }
+
   const x = layout.offsetX + col * layout.slotWidth;
   const yFromTop = layout.offsetY + row * layout.slotHeight;
-
   const y = layout.pageHeight - yFromTop - layout.slotHeight;
 
   return { x, y };
@@ -158,7 +178,6 @@ function drawCropMarks(page, trimX, trimY, trimW, trimH, layout) {
   const bottom = trimY;
   const top = trimY + trimH;
 
-  // topo esquerdo
   page.drawLine({
     start: { x: left - off - len, y: top },
     end: { x: left - off, y: top },
@@ -172,7 +191,6 @@ function drawCropMarks(page, trimX, trimY, trimW, trimH, layout) {
     color
   });
 
-  // topo direito
   page.drawLine({
     start: { x: right + off, y: top },
     end: { x: right + off + len, y: top },
@@ -186,7 +204,6 @@ function drawCropMarks(page, trimX, trimY, trimW, trimH, layout) {
     color
   });
 
-  // baixo esquerdo
   page.drawLine({
     start: { x: left - off - len, y: bottom },
     end: { x: left - off, y: bottom },
@@ -200,7 +217,6 @@ function drawCropMarks(page, trimX, trimY, trimW, trimH, layout) {
     color
   });
 
-  // baixo direito
   page.drawLine({
     start: { x: right + off, y: bottom },
     end: { x: right + off + len, y: bottom },
@@ -264,17 +280,26 @@ async function createPdfFromImages({
       const embeddedImage = await embedImage(pdfDoc, imgPath);
 
       const { x: slotX, y: slotY } = getSlotPosition(i, layout);
-      const { x: trimX, y: trimY } = getTrimPosition(slotX, slotY, layout);
 
-      // desenha a imagem ocupando a área total com sangria
-      page.drawImage(embeddedImage, {
-        x: slotX,
-        y: slotY,
-        width: layout.slotWidth,
-        height: layout.slotHeight
-      });
+      if (layout.templateZero) {
+        page.drawImage(embeddedImage, {
+          x: slotX,
+          y: slotY,
+          width: layout.trimWidth,
+          height: layout.trimHeight
+        });
+      } else {
+        const { x: trimX, y: trimY } = getTrimPosition(slotX, slotY, layout);
 
-      drawCropMarks(page, trimX, trimY, layout.trimWidth, layout.trimHeight, layout);
+        page.drawImage(embeddedImage, {
+          x: slotX,
+          y: slotY,
+          width: layout.slotWidth,
+          height: layout.slotHeight
+        });
+
+        drawCropMarks(page, trimX, trimY, layout.trimWidth, layout.trimHeight, layout);
+      }
     }
   }
 
@@ -305,72 +330,57 @@ async function createMergedPdf({
   fs.writeFileSync(outputPath, mergedBytes);
 }
 
-async function main() {
-  const baseDir = __dirname;
-  const outputDir = path.join(baseDir, 'output');
-  const dadosFeedPath = path.join(baseDir, 'dados-feed.json');
+async function buildTemplateZeroPdf(jobResult, pdfDir) {
+  const layout = buildLayoutForTemplateZero(jobResult);
+  const finalPdfPath = path.join(pdfDir, 'final.pdf');
 
-  let jobDir;
-  const argJobDir = process.argv[2];
+  await createPdfFromImages({
+    imagePaths: jobResult.front_images || [],
+    outputPath: finalPdfPath,
+    layout,
+    repeatSingleImage: false
+  });
 
-  if (argJobDir) {
-    jobDir = path.isAbsolute(argJobDir)
-      ? argJobDir
-      : path.join(baseDir, argJobDir);
-  } else {
-    jobDir = getLatestJobDir(outputDir);
-  }
+  const result = {
+    job_id: jobResult.job_id,
+    template_id: jobResult.template_id,
+    quantity: jobResult.quantity,
+    mode: 'front-only',
+    layout,
+    final_pdf: finalPdfPath
+  };
 
-  const jobResultPath = path.join(jobDir, 'job-result.json');
-  ensureFileExists(jobResultPath, 'job-result.json');
+  fs.writeFileSync(
+    path.join(pdfDir, 'pdf-result.json'),
+    JSON.stringify(result, null, 2),
+    'utf8'
+  );
 
-  const jobResult = JSON.parse(fs.readFileSync(jobResultPath, 'utf8'));
+  return result;
+}
 
-  const frontImage = jobResult.front_image;
-  const backImages = jobResult.back_images || [];
-  const quantity = jobResult.quantity;
-
-  if (!frontImage) {
-    throw new Error('front_image não encontrado no job-result.json');
-  }
-
-  if (!backImages.length) {
-    throw new Error('Nenhuma imagem de verso encontrada no job-result.json');
-  }
-
-  let config = {};
-  if (fs.existsSync(dadosFeedPath)) {
-    const dadosFeed = JSON.parse(fs.readFileSync(dadosFeedPath, 'utf8'));
-    config = dadosFeed.config || {};
-  }
-
-  const layout = buildLayout(config);
-
-  const pdfDir = path.join(jobDir, 'pdf');
-  ensureDir(pdfDir);
+async function buildRegularPdf(jobResult, pdfDir) {
+  const layout = buildLayoutRegular(jobResult);
 
   const frontPdfPath = path.join(pdfDir, 'front.pdf');
   const backPdfPath = path.join(pdfDir, 'back.pdf');
   const finalPdfPath = path.join(pdfDir, 'final.pdf');
 
-  console.log('Gerando PDF da frente com sangria...');
   await createPdfFromImages({
-    imagePaths: [frontImage],
+    imagePaths: [jobResult.front_image],
     outputPath: frontPdfPath,
     layout,
     repeatSingleImage: true,
-    totalCount: quantity
+    totalCount: jobResult.quantity
   });
 
-  console.log('Gerando PDF do verso com sangria...');
   await createPdfFromImages({
-    imagePaths: backImages,
+    imagePaths: jobResult.back_images || [],
     outputPath: backPdfPath,
     layout,
     repeatSingleImage: false
   });
 
-  console.log('Gerando PDF final...');
   await createMergedPdf({
     frontPdfPath,
     backPdfPath,
@@ -380,22 +390,9 @@ async function main() {
   const result = {
     job_id: jobResult.job_id,
     template_id: jobResult.template_id,
-    quantity,
+    quantity: jobResult.quantity,
     total_pages: jobResult.total_pages,
-    layout: {
-      pageWidth: layout.pageWidth,
-      pageHeight: layout.pageHeight,
-      columns: layout.columns,
-      rows: layout.rows,
-      cardsPerPage: layout.cardsPerPage,
-      trimWidth: layout.trimWidth,
-      trimHeight: layout.trimHeight,
-      bleed: layout.bleed,
-      slotWidth: layout.slotWidth,
-      slotHeight: layout.slotHeight,
-      offsetX: layout.offsetX,
-      offsetY: layout.offsetY
-    },
+    layout,
     front_pdf: frontPdfPath,
     back_pdf: backPdfPath,
     final_pdf: finalPdfPath
@@ -407,8 +404,37 @@ async function main() {
     'utf8'
   );
 
-  console.log('\nPDFs com sangria gerados com sucesso.');
-  console.log(JSON.stringify(result, null, 2));
+  return result;
+}
+
+async function main() {
+  const baseDir = __dirname;
+  const outputDir = path.join(baseDir, 'output');
+
+  let jobDir;
+  const argJobDir = process.argv[2];
+
+  if (argJobDir) {
+    jobDir = path.isAbsolute(argJobDir)
+      ? argJobDir
+      : path.join(baseDir, argJobDir);
+  } else {
+    throw new Error('jobDir não informado para pdf-builder.js');
+  }
+
+  const jobResultPath = path.join(jobDir, 'job-result.json');
+  ensureFileExists(jobResultPath, 'job-result.json');
+
+  const jobResult = JSON.parse(fs.readFileSync(jobResultPath, 'utf8'));
+
+  const pdfDir = path.join(jobDir, 'pdf');
+  ensureDir(pdfDir);
+
+  if (jobResult.template_id === 'template-0') {
+    await buildTemplateZeroPdf(jobResult, pdfDir);
+  } else {
+    await buildRegularPdf(jobResult, pdfDir);
+  }
 }
 
 main().catch((error) => {

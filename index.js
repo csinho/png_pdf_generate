@@ -45,45 +45,57 @@ function buildIcons(iconsDir, content) {
     icon_home: fs.existsSync(path.join(iconsDir, 'home.svg'))
       ? fileToDataUri(path.join(iconsDir, 'home.svg'))
       : '',
+
     icon_grid: fs.existsSync(path.join(iconsDir, 'list.svg'))
       ? fileToDataUri(path.join(iconsDir, 'list.svg'))
       : '',
+
     icon_options: fs.existsSync(path.join(iconsDir, 'options.svg'))
       ? fileToDataUri(path.join(iconsDir, 'options.svg'))
       : '',
+
     icon_profile: fs.existsSync(path.join(iconsDir, 'profile.svg'))
       ? fileToDataUri(path.join(iconsDir, 'profile.svg'))
       : '',
+
     icon_search: fs.existsSync(path.join(iconsDir, 'search.svg'))
       ? fileToDataUri(path.join(iconsDir, 'search.svg'))
       : '',
+
     icon_reels: fs.existsSync(path.join(iconsDir, 'svgexport-3.svg'))
       ? fileToDataUri(path.join(iconsDir, 'svgexport-3.svg'))
       : '',
+
     icon_add: fs.existsSync(path.join(iconsDir, 'add.svg'))
       ? fileToDataUri(path.join(iconsDir, 'add.svg'))
       : '',
+
     heart_icon: fs.existsSync(path.join(iconsDir, 'heart.svg'))
       ? fileToDataUri(path.join(iconsDir, 'heart.svg'))
       : '',
+
     shape_1: fs.existsSync(path.join(iconsDir, 'shape_1.svg'))
       ? svgToColoredDataUri(
           path.join(iconsDir, 'shape_1.svg'),
           content.shape_1_color || '#ffca28'
         )
       : '',
+
     shape_2: fs.existsSync(path.join(iconsDir, 'shape_2.svg'))
       ? svgToColoredDataUri(
           path.join(iconsDir, 'shape_2.svg'),
           content.shape_2_color || '#ffca28'
         )
       : '',
+
     icon_instagram: fs.existsSync(path.join(iconsDir, 'icon_instagram.svg'))
       ? fileToDataUri(path.join(iconsDir, 'icon_instagram.svg'))
       : '',
+
     icon_whatsapp: fs.existsSync(path.join(iconsDir, 'icon_whatsapp.svg'))
       ? fileToDataUri(path.join(iconsDir, 'icon_whatsapp.svg'))
       : '',
+
     nome_instagram: fs.existsSync(path.join(iconsDir, 'nome_instagram.webp'))
       ? fileToDataUri(path.join(iconsDir, 'nome_instagram.webp'))
       : ''
@@ -92,6 +104,10 @@ function buildIcons(iconsDir, content) {
 
 function getTemplatePaths(templateId) {
   const templateMap = {
+    'template-0': {
+      front: path.join('template-0', 'template-0_frente.html'),
+      back: null
+    },
     'cartao-feed-instagram-01': {
       front: path.join('cartao-feed-instagram-01', 'cartao-feed-instagram-01_frente.html'),
       back: path.join('cartao-feed-instagram-01', 'cartao-feed-instagram-01_verso.html')
@@ -111,17 +127,38 @@ function getTemplatePaths(templateId) {
   return found;
 }
 
-function buildBackQrUrl(backData, index) {
-  if (backData.qr_base_url) {
-    return `${backData.qr_base_url}${index}`;
+function buildQrUrl(baseData, index) {
+  if (baseData.qr_base_url) {
+    return `${baseData.qr_base_url}${index}`;
   }
 
-  return backData.qr_url || '';
+  return baseData.qr_url || '';
 }
 
-async function renderImage({ htmlPath, data, outputPath, iconsDir }) {
+function getViewport(templateId, data) {
+  if (templateId === 'template-0') {
+    return {
+      width: data.qr_width || 250,
+      height: data.qr_height || 250
+    };
+  }
+
+  return {
+    width: 636,
+    height: 1116
+  };
+}
+
+async function renderImage({
+  htmlPath,
+  data,
+  outputPath,
+  iconsDir,
+  templateId
+}) {
   const html = fs.readFileSync(htmlPath, 'utf8');
   const icons = buildIcons(iconsDir, data);
+  const viewport = getViewport(templateId, data);
 
   await nodeHtmlToImage({
     output: outputPath,
@@ -133,10 +170,7 @@ async function renderImage({ htmlPath, data, outputPath, iconsDir }) {
     transparent: true,
     waitUntil: 'networkidle0',
     puppeteerArgs: {
-      defaultViewport: {
-        width: 636,
-        height: 1116
-      },
+      defaultViewport: viewport,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -160,6 +194,167 @@ function runPdfBuilder(baseDir, jobDir) {
   });
 }
 
+async function generateTemplateZero({
+  baseDir,
+  templateId,
+  quantity,
+  front,
+  config,
+  jobId,
+  iconsDir,
+  outputDir
+}) {
+  const templatePaths = getTemplatePaths(templateId);
+  const frontHtmlPath = path.join(baseDir, 'templates', templatePaths.front);
+
+  if (!fs.existsSync(frontHtmlPath)) {
+    throw new Error(`Template do template-0 não encontrado: ${frontHtmlPath}`);
+  }
+
+  const jobDir = path.join(outputDir, jobId);
+  const frontsDir = path.join(jobDir, 'fronts');
+
+  ensureDir(jobDir);
+  ensureDir(frontsDir);
+
+  const frontBaseData = {
+    ...front,
+    qr_width: front?.qr_width || 250,
+    qr_height: front?.qr_height || 250
+  };
+
+  const frontImages = [];
+
+  for (let i = 0; i < quantity; i++) {
+    const qrUrl = buildQrUrl(frontBaseData, i);
+
+    const frontData = {
+      ...frontBaseData,
+      qr_url: qrUrl
+    };
+
+    const frontFileName = `front-${padNumber(i, 3)}.png`;
+    const frontOutputPath = path.join(frontsDir, frontFileName);
+
+    await renderImage({
+      htmlPath: frontHtmlPath,
+      data: frontData,
+      outputPath: frontOutputPath,
+      iconsDir,
+      templateId
+    });
+
+    frontImages.push(frontOutputPath);
+  }
+
+  const result = {
+    job_id: jobId,
+    template_id: templateId,
+    template_mode: 'front-only',
+    quantity,
+    front_images: frontImages,
+    config,
+    front_meta: {
+      qr_width: frontBaseData.qr_width,
+      qr_height: frontBaseData.qr_height
+    },
+    output_dir: jobDir
+  };
+
+  writeJson(path.join(jobDir, 'job-result.json'), result);
+
+  return result;
+}
+
+async function generateRegularTemplate({
+  baseDir,
+  templateId,
+  quantity,
+  front,
+  back,
+  config,
+  jobId,
+  iconsDir,
+  outputDir
+}) {
+  const templatePaths = getTemplatePaths(templateId);
+
+  const jobDir = path.join(outputDir, jobId);
+  const backsDir = path.join(jobDir, 'backs');
+
+  ensureDir(jobDir);
+  ensureDir(backsDir);
+
+  const frontHtmlPath = path.join(baseDir, 'templates', templatePaths.front);
+  const backHtmlPath = templatePaths.back
+    ? path.join(baseDir, 'templates', templatePaths.back)
+    : null;
+
+  if (!fs.existsSync(frontHtmlPath)) {
+    throw new Error(`Template da frente não encontrado: ${frontHtmlPath}`);
+  }
+
+  if (backHtmlPath && !fs.existsSync(backHtmlPath)) {
+    throw new Error(`Template do verso não encontrado: ${backHtmlPath}`);
+  }
+
+  const frontOutputPath = path.join(jobDir, 'front.png');
+
+  await renderImage({
+    htmlPath: frontHtmlPath,
+    data: front,
+    outputPath: frontOutputPath,
+    iconsDir,
+    templateId
+  });
+
+  const backOutputPaths = [];
+
+  if (backHtmlPath) {
+    for (let i = 0; i < quantity; i++) {
+      const qrUrl = buildQrUrl(back, i);
+
+      const backData = {
+        ...back,
+        qr_url: qrUrl
+      };
+
+      const backFileName = `back-${padNumber(i, 3)}.png`;
+      const backOutputPath = path.join(backsDir, backFileName);
+
+      await renderImage({
+        htmlPath: backHtmlPath,
+        data: backData,
+        outputPath: backOutputPath,
+        iconsDir,
+        templateId
+      });
+
+      backOutputPaths.push(backOutputPath);
+    }
+  }
+
+  const cardsPerPage = config?.cards_per_page || 12;
+  const totalPages = Math.ceil(quantity / cardsPerPage);
+
+  const result = {
+    job_id: jobId,
+    template_id: templateId,
+    template_mode: 'front-back',
+    quantity,
+    cards_per_page: cardsPerPage,
+    total_pages: totalPages,
+    front_image: frontOutputPath,
+    back_images: backOutputPaths,
+    config,
+    output_dir: jobDir
+  };
+
+  writeJson(path.join(jobDir, 'job-result.json'), result);
+
+  return result;
+}
+
 async function main() {
   const baseDir = __dirname;
   const argDataPath = process.argv[2];
@@ -169,7 +364,7 @@ async function main() {
     ? path.isAbsolute(argDataPath)
       ? argDataPath
       : path.join(baseDir, argDataPath)
-    : path.join(baseDir, 'modelo-dados-feed.json');
+    : path.join(baseDir, 'dados-feed.json');
 
   const iconsDir = path.join(baseDir, 'icons');
   const outputDir = path.join(baseDir, 'output');
@@ -189,20 +384,16 @@ async function main() {
     quantity,
     front,
     back,
-    config,
+    config = {},
     auto_generate_pdf = false
   } = payload;
 
   if (!template_id) throw new Error('template_id não informado');
   if (!quantity || quantity < 1) throw new Error('quantity inválido');
   if (!front) throw new Error('front não informado');
-  if (!back) throw new Error('back não informado');
 
   const jobId = argJobId || `${template_id}-${Date.now()}`;
-  const jobMetaDir = path.join(jobsDir, jobId);
-  ensureDir(jobMetaDir);
-
-  const statusPath = path.join(jobMetaDir, 'status.json');
+  const statusPath = path.join(jobsDir, `${jobId}.status.json`);
 
   writeJson(statusPath, {
     success: true,
@@ -213,76 +404,39 @@ async function main() {
   });
 
   try {
-    const templatePaths = getTemplatePaths(template_id);
+    let result;
 
-    const jobDir = path.join(outputDir, jobId);
-    const backsDir = path.join(jobDir, 'backs');
-
-    ensureDir(jobDir);
-    ensureDir(backsDir);
-
-    const frontHtmlPath = path.join(baseDir, 'templates', templatePaths.front);
-    const backHtmlPath = path.join(baseDir, 'templates', templatePaths.back);
-
-    if (!fs.existsSync(frontHtmlPath)) {
-      throw new Error(`Template da frente não encontrado: ${frontHtmlPath}`);
-    }
-
-    if (!fs.existsSync(backHtmlPath)) {
-      throw new Error(`Template do verso não encontrado: ${backHtmlPath}`);
-    }
-
-    const frontOutputPath = path.join(jobDir, 'front.png');
-
-    await renderImage({
-      htmlPath: frontHtmlPath,
-      data: front,
-      outputPath: frontOutputPath,
-      iconsDir
-    });
-
-    const backOutputPaths = [];
-
-    for (let i = 0; i < quantity; i++) {
-      const qrUrl = buildBackQrUrl(back, i);
-
-      const backData = {
-        ...back,
-        qr_url: qrUrl
-      };
-
-      const backFileName = `back-${padNumber(i, 3)}.png`;
-      const backOutputPath = path.join(backsDir, backFileName);
-
-      await renderImage({
-        htmlPath: backHtmlPath,
-        data: backData,
-        outputPath: backOutputPath,
-        iconsDir
+    if (template_id === 'template-0') {
+      result = await generateTemplateZero({
+        baseDir,
+        templateId: template_id,
+        quantity,
+        front,
+        config,
+        jobId,
+        iconsDir,
+        outputDir
       });
+    } else {
+      if (!back) {
+        throw new Error('back não informado para template com verso');
+      }
 
-      backOutputPaths.push(backOutputPath);
+      result = await generateRegularTemplate({
+        baseDir,
+        templateId: template_id,
+        quantity,
+        front,
+        back,
+        config,
+        jobId,
+        iconsDir,
+        outputDir
+      });
     }
-
-    const cardsPerPage = config?.cards_per_page || 12;
-    const totalPages = Math.ceil(quantity / cardsPerPage);
-
-    const result = {
-      job_id: jobId,
-      template_id,
-      quantity,
-      cards_per_page: cardsPerPage,
-      total_pages: totalPages,
-      front_image: frontOutputPath,
-      back_images: backOutputPaths,
-      output_dir: jobDir,
-      auto_generate_pdf
-    };
-
-    writeJson(path.join(jobDir, 'job-result.json'), result);
 
     if (auto_generate_pdf) {
-      runPdfBuilder(baseDir, jobDir);
+      runPdfBuilder(baseDir, result.output_dir);
     }
 
     writeJson(statusPath, {

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Template 0 - Frente QR</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: {{qr_width}}px;
+      height: {{qr_height}}px;
+      overflow: hidden;
+      background: transparent;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+    }
+
+    .qr-wrap {
+      width: {{qr_width}}px;
+      height: {{qr_height}}px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+    }
+
+    #qr-code {
+      width: {{qr_width}}px;
+      height: {{qr_height}}px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="qr-wrap">
+    <div id="qr-code"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qr-code-styling/lib/qr-code-styling.js"></script>
+  <script>
+    const qrCode = new QRCodeStyling({
+      width: {{qr_width}},
+      height: {{qr_height}},
+      type: "canvas",
+      shape: "square",
+      data: "{{{qr_url}}}",
+      image: "{{{qr_logo}}}",
+      margin: 0,
+      qrOptions: {
+        typeNumber: "0",
+        mode: "Byte",
+        errorCorrectionLevel: "Q"
+      },
+      dotsOptions: {
+        color: "{{qr_dots_color}}",
+        type: "{{qr_dots_type}}"
+      },
+      cornersSquareOptions: {
+        color: "{{qr_corners_square_color}}",
+        type: "{{qr_corners_square_type}}"
+      },
+      cornersDotOptions: {
+        color: "{{qr_corners_dot_color}}",
+        type: "{{qr_corners_dot_type}}"
+      },
+      backgroundOptions: {
+        color: "{{qr_background_color}}"
+      },
+      imageOptions: {
+        crossOrigin: "anonymous",
+        margin: -5,
+        imageSize: 0.35,
+        hideBackgroundDots: true
+      }
+    });
+
+    qrCode.append(document.getElementById("qr-code"));
+  </script>
+</body>
+
+</html>
