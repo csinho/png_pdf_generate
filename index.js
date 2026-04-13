@@ -132,7 +132,12 @@ async function renderImage({ htmlPath, data, outputPath, iconsDir }) {
       defaultViewport: {
         width: 636,
         height: 1116
-      }
+      },
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage'
+      ]
     }
   });
 }
