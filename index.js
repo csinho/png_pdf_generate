@@ -169,7 +169,7 @@ async function main() {
     ? path.isAbsolute(argDataPath)
       ? argDataPath
       : path.join(baseDir, argDataPath)
-    : path.join(baseDir, 'dados-feed.json');
+    : path.join(baseDir, 'modelo-dados-feed.json');
 
   const iconsDir = path.join(baseDir, 'icons');
   const outputDir = path.join(baseDir, 'output');
