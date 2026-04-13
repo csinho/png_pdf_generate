@@ -195,7 +195,10 @@ async function main() {
   if (!back) throw new Error('back não informado');
 
   const jobId = argJobId || `${template_id}-${Date.now()}`;
-  const statusPath = path.join(jobsDir, `${jobId}.status.json`);
+  const jobMetaDir = path.join(jobsDir, jobId);
+  ensureDir(jobMetaDir);
+
+  const statusPath = path.join(jobMetaDir, 'status.json');
 
   writeJson(statusPath, {
     success: true,

@@ -33,13 +33,16 @@ function readJson(filePath) {
 }
 
 function getJobPaths(jobId) {
-  const payloadPath = path.join(jobsDir, `${jobId}.json`);
-  const statusPath = path.join(jobsDir, `${jobId}.status.json`);
+  const jobMetaDir = path.join(jobsDir, jobId);
+  const payloadPath = path.join(jobMetaDir, 'payload.json');
+  const statusPath = path.join(jobMetaDir, 'status.json');
+
   const outputJobDir = path.join(outputDir, jobId);
   const jobResultPath = path.join(outputJobDir, 'job-result.json');
   const pdfResultPath = path.join(outputJobDir, 'pdf', 'pdf-result.json');
 
   return {
+    jobMetaDir,
     payloadPath,
     statusPath,
     outputJobDir,
@@ -94,7 +97,9 @@ app.post('/generate', async (req, res) => {
     }
 
     const jobId = `${payload.template_id}-${Date.now()}`;
-    const { payloadPath, statusPath } = getJobPaths(jobId);
+    const { jobMetaDir, payloadPath, statusPath } = getJobPaths(jobId);
+
+    ensureDir(jobMetaDir);
 
     const payloadToSave = {
       ...payload,
